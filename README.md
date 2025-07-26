@@ -97,6 +97,21 @@ You will find executables in ~/azeroth-server/bin/
 
 `ln -sf $PREFIX/lib/aarch64-linux-android/libmariadb.so $PREFIX/lib/libmariadb.so`
 
+### Spoof mysql version
+
+`echo -e "\n[mysqld]\nversion=8.0.36" >> $PREFIX/etc/my.cnf`
+
+### Start MariaDB
+
+`mariadbd-safe --datadir=$PREFIX/var/lib/mysql &`
+
+### Create user
+`mariadb -u root -e "DROP USER IF EXISTS 'acore'@'localhost'; CREATE USER
+'acore'@'localhost' IDENTIFIED BY 'acore';"`
+
+### Grant privileges
+`mariadb -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'acore'@'localhost';"`
+
 ## Servers should be runnable now
 
 `cd ~/azeroth-server/`
