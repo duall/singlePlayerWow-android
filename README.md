@@ -90,7 +90,7 @@ You will find executables in ~/azeroth-server/bin/
 `git clone --filter=blob:none --sparse https://github.com/duall/singlePlayerWow-android.git temp_configs && cd temp_configs && git sparse-checkout set configs && cp -r configs/* ~/azeroth-server/etc/ && cd .. && rm -rf temp_configs`
 
 ### Download serverdata
-curl -L https://github.com/wowgaming/client-data/releases/download/v16/data.zip -o ~/data.zip && unzip ~/data.zip -d ~/azeroth-server/ && rm ~/data.zip
+`curl -L https://github.com/wowgaming/client-data/releases/download/v16/data.zip -o ~/data.zip && unzip ~/data.zip -d ~/azeroth-server/ && rm ~/data.zip`
 
 ### Fix mariadb link
 ##### CANNOT LINK EXECUTABLE "./authserver": library "libmariadb.so" not found: needed by main executable
