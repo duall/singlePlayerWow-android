@@ -107,7 +107,7 @@ MODULES=(
     "https://github.com/liyunfan1223/mod-playerbots.git"
     "https://github.com/azerothcore/mod-1v1-arena"
     "https://github.com/azerothcore/mod-account-achievements"
-    "https://github.com/azerothcore/mod-ah-bot"
+    "https://github.com/duall/mod-ah-bot"
     "https://github.com/azerothcore/mod-auto-revive"
     "https://github.com/azerothcore/mod-autobalance"
     "https://github.com/azerothcore/mod-better-item-reloading"
