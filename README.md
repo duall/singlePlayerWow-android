@@ -82,6 +82,9 @@ You will find executables in ~/azeroth-server/bin/
 
 `./bin/worldserver`
 
+## If worldserver fails with SQL error, do this:
+`curl -sL https://raw.githubusercontent.com/duall/singlePlayerWow-android/refs/heads/main/fix-modules-sql.sh | bash`
+
 ## Launch both authserver and worldserver in a single tmux window
 `tmux new-session -d -c ~/azeroth-server -s azeroth './bin/authserver' \; split-window -h -c
 ~/azeroth-server './bin/worldserver' \; attach`
