@@ -1,18 +1,13 @@
 #!/bin/bash
-
 # Script to automatically import all SQL files from AzerothCore modules
-# Searches for SQL files in modules/*/data/sql/ directories and imports them to appropriate databases
-
+# Searches for SQL files in modules/*/data/sql/ and modules/*/sql/ directories and imports them to appropriate databases
 set -e
-
 MODULES_DIR="$HOME/azerothcore-android/modules"
 DB_USER="acore"
 DB_PASS="acore"
-
 echo "=== AzerothCore Module SQL Import Script ==="
 echo "Searching for SQL files in: $MODULES_DIR"
 echo ""
-
 # Function to import SQL file
 import_sql() {
     local file="$1"
@@ -27,35 +22,39 @@ import_sql() {
         return 1
     fi
 }
-
 # Check if modules directory exists
 if [ ! -d "$MODULES_DIR" ]; then
     echo "Error: Modules directory not found at $MODULES_DIR"
     exit 1
 fi
-
-# Find all modules with SQL data
-modules_with_sql=$(find "$MODULES_DIR" -type d -path "*/data/sql" | sed 's|/data/sql||' | sort)
-
+# Find all modules with SQL data (check both data/sql and sql directories)
+modules_with_sql=$(find "$MODULES_DIR" -type d \( -path "*/data/sql" -o -path "*/sql" \) | sed -E 's|/(data/)?sql$||' | sort -u)
 if [ -z "$modules_with_sql" ]; then
     echo "No modules with SQL data found."
     exit 0
 fi
-
 echo "Found modules with SQL data:"
 echo "$modules_with_sql" | sed 's|.*/||' | sed 's/^/  - /'
 echo ""
-
 # Process each module
 total_files=0
 success_count=0
 failed_count=0
-
 for module_dir in $modules_with_sql; do
     module_name=$(basename "$module_dir")
-    sql_dir="$module_dir/data/sql"
     
-    echo "Processing module: $module_name"
+    # Check for both possible SQL directory locations
+    sql_dir=""
+    if [ -d "$module_dir/data/sql" ]; then
+        sql_dir="$module_dir/data/sql"
+        echo "Processing module: $module_name (using data/sql)"
+    elif [ -d "$module_dir/sql" ]; then
+        sql_dir="$module_dir/sql"
+        echo "Processing module: $module_name (using sql)"
+    else
+        echo "Warning: No SQL directory found for module $module_name"
+        continue
+    fi
     
     # Find all SQL files in this module
     if [ -d "$sql_dir" ]; then
@@ -100,16 +99,52 @@ for module_dir in $modules_with_sql; do
                 done <<< "$sql_files"
             fi
         done
+        
+        # Also check for alternative directory structures (world/, characters/, auth/)
+        alt_dirs=$(find "$sql_dir" -type d \( -name "world" -o -name "characters" -o -name "auth" \) 2>/dev/null | sort || true)
+        
+        for alt_dir in $alt_dirs; do
+            dir_type=$(basename "$alt_dir")
+            
+            # Map directory type to actual database name
+            case "$dir_type" in
+                "auth")
+                    target_db="acore_auth"
+                    ;;
+                "characters")
+                    target_db="acore_characters"
+                    ;;
+                "world")
+                    target_db="acore_world"
+                    ;;
+            esac
+            
+            # Find SQL files in this directory (including subdirectories)
+            sql_files=$(find "$alt_dir" -name "*.sql" 2>/dev/null || true)
+            
+            if [ -n "$sql_files" ]; then
+                echo "  Database '$target_db' files (alt structure):"
+                while IFS= read -r file; do
+                    if [ -f "$file" ]; then
+                        relative_path="${file#$MODULES_DIR/}"
+                        total_files=$((total_files + 1))
+                        if import_sql "$file" "$target_db" "$relative_path"; then
+                            success_count=$((success_count + 1))
+                        else
+                            failed_count=$((failed_count + 1))
+                        fi
+                    fi
+                done <<< "$sql_files"
+            fi
+        done
     fi
     
     echo ""
 done
-
 echo "=== Import Summary ==="
 echo "Total files processed: $total_files"
 echo "Successful imports: $success_count"
 echo "Failed imports: $failed_count"
-
 if [ $failed_count -gt 0 ]; then
     echo ""
     echo "Some imports failed. This might be normal if:"
