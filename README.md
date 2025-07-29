@@ -119,13 +119,10 @@ Type this in worldserver window *AC>*
 Try reducing playerbots number in: `nano ~/azeroth-server/etc/modules/playerbots.conf`
 
 ### Winlator performance boost
-Disable last 3 cores in winlator
+Disable efficiency cores in winlator
 
-And change this in worldserver.conf *UseProcessors = 224* (This uses last 3 efficiency cores in 8 core processor)
-
-If your phone has more or less than 8 cores, modify this bitmask number.
-
-This makes sure processors between server and client do not clash
+And change this in worldserver.conf *UseProcessors = 3* (To use your CPU efficiency cores)
+Ask AI for help how to modify this bitmask value to match your phone CPU
 
 ### My wifi friends cannot connect
 Replace 192.168.X.XXX with your actual LAN IP (type ifconfig to find out)
