@@ -2,7 +2,7 @@
 
 # AzerothCore Single Player WoW Setup Script for Termux
 # Compiles everything from GitHub sources
-# Usage: curl -fsSL https://raw.githubusercontent.com/username/repo/main/wowsp.sh -o ~/wowsp.sh && bash ~/wowsp.sh
+# Usage: curl -fsSL https://raw.githubusercontent.com/duall/singlePlayerWow-android/main/wowsp.sh -o ~/wowsp.sh && bash ~/wowsp.sh
 
 set -e  # Exit on any error
 
