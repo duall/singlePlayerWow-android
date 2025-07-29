@@ -1,3 +1,6 @@
+<img width="2066" height="753" alt="image" src="https://github.com/user-attachments/assets/ba815e88-dd5b-4584-88e9-dfdf9eed767b" />
+
+
 ## One click install script:
 *copy into termux*
 
