@@ -15,13 +15,48 @@ echo "=== AzerothCore Single Player WoW Setup Script ==="
 echo "This script will compile AzerothCore from source for Android/Termux"
 echo ""
 
+# Function to check if MariaDB is running
+check_mariadb_running() {
+    if pgrep -f "mariadbd" > /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to start MariaDB if not running
+ensure_mariadb_running() {
+    if ! check_mariadb_running; then
+        echo "Starting MariaDB..."
+        mariadbd-safe --datadir="$PREFIX/var/lib/mysql" &
+        
+        # Wait for MariaDB to be ready
+        echo "Waiting for MariaDB to start..."
+        for i in {1..30}; do
+            if mariadb -u root -e "SELECT 1;" >/dev/null 2>&1; then
+                print_status "MariaDB started and ready"
+                break
+            fi
+            if [ $i -eq 30 ]; then
+                print_warning "MariaDB taking longer than expected"
+                echo "Continuing anyway - it might work..."
+            else
+                printf "."
+                sleep 1
+            fi
+        done
+    else
+        print_status "MariaDB already running"
+    fi
+}
+
 # Function to launch servers with autofix capability
 launch_servers() {
     local attempt_autofix=true
     
     # Check if autofix was already applied
     if [ -f "$AUTOFIX_FLAG" ]; then
-        echo "✓ Autofix was previously applied, launching servers directly..."
+        echo "Autofix was previously applied, launching servers directly..."
         attempt_autofix=false
     fi
     
@@ -56,7 +91,7 @@ launch_servers() {
             # Check if it's ready (look for the AC> prompt)
             if grep -q "AC>" "$log_file"; then
                 echo ""
-                echo "✓ WorldServer fully initialized and ready!"
+                echo "WorldServer fully initialized and ready!"
                 
                 # Kill monitoring processes
                 kill "$worldserver_pid" 2>/dev/null || true
@@ -124,10 +159,10 @@ run_sql_fix() {
         
         echo "  Importing: $relative_path -> $database"
         if mariadb -u "$DB_USER" -p"$DB_PASS" "$database" < "$file" 2>/dev/null; then
-            echo "    ✓ Success"
+            echo "    Success"
             return 0
         else
-            echo "    ❌ Failed"
+            echo "    Failed"
             return 1
         fi
     }
@@ -274,25 +309,6 @@ run_sql_fix() {
     fi
 }
 
-# Check if worldserver already exists
-if [ -f "$SERVER_DIR/bin/worldserver" ]; then
-    echo "✓ AzerothCore installation found at $SERVER_DIR"
-    echo "✓ Servers are ready to launch!"
-    echo ""
-    echo "Starting servers in:"
-    for i in 5 4 3 2 1; do
-        echo "  $i..."
-        sleep 1
-    done
-    echo ""
-    
-    launch_servers
-    exit 0
-fi
-
-echo "Estimated time: 30-60 minutes depending on device performance"
-echo ""
-
 # Function to check if a package is installed
 check_package() {
     if dpkg -l | grep -q "^ii  $1 "; then
@@ -311,18 +327,9 @@ check_mysql_user() {
     fi
 }
 
-# Function to check if MariaDB is running
-check_mariadb_running() {
-    if pgrep -f "mariadbd" > /dev/null; then
-        return 0
-    else
-        return 1
-    fi
-}
-
 # Function to print colored output
 print_status() {
-    echo "✓ $1"
+    echo "OK $1"
 }
 
 print_step() {
@@ -331,12 +338,36 @@ print_step() {
 }
 
 print_warning() {
-    echo "⚠ $1"
+    echo "WARNING $1"
 }
 
 print_error() {
-    echo "❌ $1"
+    echo "ERROR $1"
 }
+
+# Check if worldserver already exists
+if [ -f "$SERVER_DIR/bin/worldserver" ]; then
+    echo "AzerothCore installation found at $SERVER_DIR"
+    
+    # Ensure MariaDB is running
+    echo "Checking MariaDB status..."
+    ensure_mariadb_running
+    
+    echo "Servers are ready to launch!"
+    echo ""
+    echo "Starting servers in:"
+    for i in 5 4 3 2 1; do
+        echo "  $i..."
+        sleep 1
+    done
+    echo ""
+    
+    launch_servers
+    exit 0
+fi
+
+echo "Estimated time: 30-60 minutes depending on device performance"
+echo ""
 
 # Step 1: Install build dependencies
 print_step "Step 1: Installing build dependencies"
@@ -474,28 +505,7 @@ fi
 
 # Step 5: Start MariaDB
 print_step "Step 5: Starting MariaDB"
-if ! check_mariadb_running; then
-    echo "Starting MariaDB daemon..."
-    mariadbd-safe --datadir="$PREFIX/var/lib/mysql" &
-    
-    # Wait for MariaDB to be ready
-    echo "Waiting for MariaDB to start..."
-    for i in {1..30}; do
-        if mariadb -u root -e "SELECT 1;" >/dev/null 2>&1; then
-            print_status "MariaDB started and ready"
-            break
-        fi
-        if [ $i -eq 30 ]; then
-            print_warning "MariaDB is taking longer than expected to start"
-            echo "Continuing anyway - it might work..."
-        else
-            printf "."
-            sleep 1
-        fi
-    done
-else
-    print_status "MariaDB already running"
-fi
+ensure_mariadb_running
 
 # Step 6: Setup database user
 print_step "Step 6: Setting up database user"
@@ -660,7 +670,7 @@ chmod +x "$SERVER_DIR/bin/worldserver"
 
 echo ""
 echo "SUCCESS! AzerothCore has been compiled and installed successfully."
-echo "✓ Servers are ready to launch!"
+echo "Servers are ready to launch!"
 echo ""
 echo "Starting servers in:"
 for i in 5 4 3 2 1; do
