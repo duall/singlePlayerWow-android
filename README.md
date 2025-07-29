@@ -97,8 +97,9 @@ Try reducing playerbots number in: etc/modules/playerbots.conf
 
 ### My wifi friends cannot connect
 Replace 192.168.1.XXX with your actual LAN IP (type ifconfig to find out)
-mariadb -u root -e "UPDATE acore_auth.realmlist SET address = '192.168.1.XXX' WHERE id =
-1;"
+
+`mariadb -u root -e "UPDATE acore_auth.realmlist SET address = '192.168.1.XXX' WHERE id =
+1;"`
 
 ### Winlator performance boost
 Disable last 3 cores in winlator
