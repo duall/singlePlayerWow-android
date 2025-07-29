@@ -110,7 +110,7 @@ Type this in worldserver window *AC>*
 `account set gmlevel test 3 -1`
 
 ### Poor performance:
-Try reducing playerbots number in: etc/modules/playerbots.conf
+Try reducing playerbots number in: `nano ~/azeroth-server/etc/modules/playerbots.conf`
 
 ### My wifi friends cannot connect
 Replace 192.168.X.XXX with your actual LAN IP (type ifconfig to find out)
