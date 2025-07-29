@@ -416,6 +416,7 @@ MODULES=(
     "https://github.com/liyunfan1223/mod-playerbots.git"
 	"https://github.com/DustinHendrickson/mod-player-bot-level-brackets"
 	"https://github.com/ZhengPeiRu21/mod-individual-progression.git"
+        "https://github.com/azerothcore/mod-random-enchants"
     "https://github.com/azerothcore/mod-1v1-arena"
     "https://github.com/azerothcore/mod-account-achievements"
     "https://github.com/duall/mod-ah-bot"
