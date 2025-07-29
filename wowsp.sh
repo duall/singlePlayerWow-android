@@ -2,7 +2,7 @@
 
 # AzerothCore Single Player WoW Setup Script for Termux
 # Compiles everything from GitHub sources
-# Usage: curl -fsSL https://raw.githubusercontent.com/duall/singlePlayerWow-android/main/wowsp.sh -o ~/wowsp.sh && bash ~/wowsp.sh
+# Usage: curl -fsSL https://raw.githubusercontent.com/username/repo/main/wowsp.sh -o ~/wowsp.sh && bash ~/wowsp.sh
 
 set -e  # Exit on any error
 
@@ -106,9 +106,9 @@ launch_servers() {
          attach
 }
 
-# Integrated SQL fix function
+# Enhanced integrated SQL fix function
 run_sql_fix() {
-    echo "=== Running Integrated SQL Fix ==="
+    echo "=== Running Enhanced Integrated SQL Fix ==="
     
     MODULES_DIR="$SOURCE_DIR/modules"
     DB_USER="acore"
@@ -138,8 +138,8 @@ run_sql_fix() {
         return 1
     fi
     
-    # Find all modules with SQL data
-    modules_with_sql=$(find "$MODULES_DIR" -type d -path "*/data/sql" 2>/dev/null | sed 's|/data/sql||' | sort || true)
+    # Find all modules with SQL data (check both data/sql and sql directories)
+    modules_with_sql=$(find "$MODULES_DIR" -type d \( -path "*/data/sql" -o -path "*/sql" \) | sed -E 's|/(data/)?sql$||' | sort -u)
     
     if [ -z "$modules_with_sql" ]; then
         echo "No modules with SQL data found."
@@ -157,9 +157,19 @@ run_sql_fix() {
     
     for module_dir in $modules_with_sql; do
         module_name=$(basename "$module_dir")
-        sql_dir="$module_dir/data/sql"
         
-        echo "Processing module: $module_name"
+        # Check for both possible SQL directory locations
+        sql_dir=""
+        if [ -d "$module_dir/data/sql" ]; then
+            sql_dir="$module_dir/data/sql"
+            echo "Processing module: $module_name (using data/sql)"
+        elif [ -d "$module_dir/sql" ]; then
+            sql_dir="$module_dir/sql"
+            echo "Processing module: $module_name (using sql)"
+        else
+            echo "Warning: No SQL directory found for module $module_name"
+            continue
+        fi
         
         # Find all SQL files in this module
         if [ -d "$sql_dir" ]; then
@@ -191,6 +201,44 @@ run_sql_fix() {
                 
                 if [ -n "$sql_files" ]; then
                     echo "  Database '$target_db' files:"
+                    while IFS= read -r file; do
+                        if [ -f "$file" ]; then
+                            relative_path="${file#$MODULES_DIR/}"
+                            total_files=$((total_files + 1))
+                            if import_sql "$file" "$target_db" "$relative_path"; then
+                                success_count=$((success_count + 1))
+                            else
+                                failed_count=$((failed_count + 1))
+                            fi
+                        fi
+                    done <<< "$sql_files"
+                fi
+            done
+            
+            # Also check for alternative directory structures (world/, characters/, auth/)
+            alt_dirs=$(find "$sql_dir" -type d \( -name "world" -o -name "characters" -o -name "auth" \) 2>/dev/null | sort || true)
+            
+            for alt_dir in $alt_dirs; do
+                dir_type=$(basename "$alt_dir")
+                
+                # Map directory type to actual database name
+                case "$dir_type" in
+                    "auth")
+                        target_db="acore_auth"
+                        ;;
+                    "characters")
+                        target_db="acore_characters"
+                        ;;
+                    "world")
+                        target_db="acore_world"
+                        ;;
+                esac
+                
+                # Find SQL files in this directory (including subdirectories)
+                sql_files=$(find "$alt_dir" -name "*.sql" 2>/dev/null || true)
+                
+                if [ -n "$sql_files" ]; then
+                    echo "  Database '$target_db' files (alt structure):"
                     while IFS= read -r file; do
                         if [ -f "$file" ]; then
                             relative_path="${file#$MODULES_DIR/}"
@@ -335,6 +383,8 @@ echo "Cloning required modules (this may take a few minutes)..."
 # List of modules to clone (excluding mod-individual-progression)
 MODULES=(
     "https://github.com/liyunfan1223/mod-playerbots.git"
+	"https://github.com/DustinHendrickson/mod-player-bot-level-brackets"
+	"https://github.com/ZhengPeiRu21/mod-individual-progression.git"
     "https://github.com/azerothcore/mod-1v1-arena"
     "https://github.com/azerothcore/mod-account-achievements"
     "https://github.com/duall/mod-ah-bot"
