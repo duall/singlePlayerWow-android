@@ -1,4 +1,11 @@
-## Install Dependencies (In termux android)
+## One click install script:
+*copy into termux*
+
+`curl -fsSL https://raw.githubusercontent.com/duall/singlePlayerWow-android/main/wowsp.sh -o ~/wowsp.sh && bash ~/wowsp.sh`
+
+Should take care of everything below automatically
+
+## Manual installation if script does not work
 You need to install the build and runtime dependancies:
 
 `pkg install git cmake make clang mariadb boost-headers boost-static tmux`
