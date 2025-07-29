@@ -92,6 +92,14 @@ You will find executables in ~/azeroth-server/bin/
 
 ## Troubleshooting:
 
+### How to create account:
+
+Type this in worldserver window *AC>*
+
+`account create test test`
+
+`account set gmlevel test 3 -1`
+
 ### Poor performance:
 Try reducing playerbots number in: etc/modules/playerbots.conf
 
