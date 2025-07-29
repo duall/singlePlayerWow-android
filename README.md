@@ -8,6 +8,8 @@
 
 Should take care of everything below automatically
 
+Connect with chromiecraft 3.3.5 trough winlator ( set realm to 127.0.0.1 or 192.168.x.x  )
+
 ## Manual installation if script does not work
 You need to install the build and runtime dependancies:
 
@@ -101,6 +103,7 @@ You will find executables in ~/azeroth-server/bin/
 `tmux new-session -d -c ~/azeroth-server -s azeroth './bin/authserver' \; split-window -h -c
 ~/azeroth-server './bin/worldserver' \; attach`
 
+Connect with chromiecraft 3.3.5 trough winlator ( set realm to 127.0.0.1 or 192.168.x.x  )
 
 ## Troubleshooting:
 
