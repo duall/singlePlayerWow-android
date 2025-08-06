@@ -419,7 +419,7 @@ MODULES=(
         "https://github.com/azerothcore/mod-random-enchants"
     "https://github.com/azerothcore/mod-1v1-arena"
     "https://github.com/azerothcore/mod-account-achievements"
-    "https://github.com/duall/mod-ah-bot"
+    "https://github.com/NathanHandley/mod-ah-bot"
     "https://github.com/azerothcore/mod-auto-revive"
     "https://github.com/azerothcore/mod-autobalance"
     "https://github.com/azerothcore/mod-better-item-reloading"
