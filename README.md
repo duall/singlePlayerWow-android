@@ -13,7 +13,7 @@ Connect with chromiecraft 3.3.5 trough winlator ( set realm to 127.0.0.1 or 192.
 ## Manual installation if script does not work
 You need to install the build and runtime dependancies:
 
-`pkg install git cmake make clang mariadb boost-headers boost-static tmux`
+`pkg install git cmake make clang mariadb boost-headers boost-static tmux libc++`
 
 ### Install Azerothcore
 Clone the project
