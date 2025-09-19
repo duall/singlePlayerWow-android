@@ -390,6 +390,10 @@ else
     print_status "All dependencies already installed"
 fi
 
+echo "Ensuring latest version of critical build tools..."
+pkg install -y libc++ clang cmake
+print_status "Critical packages upgraded"
+
 # Step 2: Clone AzerothCore source
 print_step "Step 2: Downloading AzerothCore source code"
 if [ ! -d "$SOURCE_DIR" ]; then
