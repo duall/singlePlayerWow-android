@@ -53,7 +53,7 @@ Some players might want to remove *mod-individual-progression*
 
 ## Compile Azerothcore
 
-`make -j$(nproc)`
+`make -j$(nproc)` (Might want to reduce it if low on RAM)
 
 ### Install Azerothcore
 
