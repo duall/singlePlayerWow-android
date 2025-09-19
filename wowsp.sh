@@ -371,7 +371,7 @@ echo ""
 
 # Step 1: Install build dependencies
 print_step "Step 1: Installing build dependencies"
-PACKAGES=("git" "cmake" "make" "clang" "mariadb" "boost-headers" "boost-static" "tmux" "curl" "unzip", "libc++")
+PACKAGES=("git" "cmake" "make" "clang" "mariadb" "boost-headers" "boost-static" "tmux" "curl" "unzip" "libc++")
 MISSING_PACKAGES=()
 
 echo "Checking for required packages..."
