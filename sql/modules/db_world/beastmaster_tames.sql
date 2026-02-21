@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS `beastmaster_tames` (
+    `entry` INT UNSIGNED NOT NULL PRIMARY KEY,
+    `name` VARCHAR(64) NOT NULL,
+    `family` INT UNSIGNED NOT NULL,
+    `rarity` VARCHAR(16) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
