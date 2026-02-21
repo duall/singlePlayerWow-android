@@ -183,6 +183,11 @@ echo "Downloading data repository (SQL + configs only)..."
 if git clone --filter=blob:none --sparse "$DATA_REPO_URL" "$DATA_REPO"; then
     cd "$DATA_REPO"
     git sparse-checkout set sql configs
+    
+    # Create data/sql structure expected by DB updater
+    mkdir -p "$DATA_REPO/data/sql/updates/pending_db_auth"
+    mkdir -p "$DATA_REPO/data/sql/updates/pending_db_characters"
+    mkdir -p "$DATA_REPO/data/sql/updates/pending_db_world"
     print_status "SQL and config files downloaded"
 else
     print_error "Failed to download data repository"
@@ -204,6 +209,11 @@ if [ -d "$DATA_REPO/configs" ]; then
         cp "$DATA_REPO/configs/modules/"* "$SERVER_DIR/etc/modules/" 2>/dev/null || true
     fi
     print_status "Configuration files installed"
+    
+    # Point SourceDirectory to our data repo for DB updater
+    sed -i "s|SourceDirectory.*=.*|SourceDirectory = \"$DATA_REPO\"|" "$SERVER_DIR/etc/worldserver.conf" 2>/dev/null || true
+    sed -i "s|SourceDirectory.*=.*|SourceDirectory = \"$DATA_REPO\"|" "$SERVER_DIR/etc/authserver.conf" 2>/dev/null || true
+    print_status "SourceDirectory configured"
 else
     print_warning "Configuration directory not found"
 fi
@@ -349,8 +359,7 @@ fi
 chmod +x "$SERVER_DIR/bin/authserver"
 chmod +x "$SERVER_DIR/bin/worldserver"
 
-# Cleanup data repo
-rm -rf "$DATA_REPO"
+# Keep DATA_REPO - worldserver needs it for SourceDirectory
 
 echo ""
 echo "SUCCESS! AzerothCore has been set up with pre-compiled Snapdragon binaries."
