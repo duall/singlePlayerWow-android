@@ -350,32 +350,29 @@ else
 fi
 
 echo "Testing if Snapdragon binary can execute on this device..."
-if "$SERVER_DIR/bin/authserver" --version >/dev/null 2>&1 || "$SERVER_DIR/bin/authserver" --help >/dev/null 2>&1; then
-    print_status "Binary is compatible with this device!"
-elif "$SERVER_DIR/bin/authserver" 2>&1 | head -1 | grep -qiE "azeroth|core|auth|error|config|cannot open"; then
-    # Binary ran but complained about missing config/database - that means it CAN execute
-    print_status "Binary is compatible with this device!"
+test_output=$("$SERVER_DIR/bin/authserver" 2>&1 || true)
+
+if echo "$test_output" | grep -qiE "cannot execute binary file|Exec format error|SIGILL|Illegal instruction"; then
+    print_error "This binary is NOT compatible with your device!"
+    echo ""
+    echo "The pre-compiled Snapdragon binaries cannot run on this device."
+    echo "This could mean your device uses a different chipset (MediaTek, Exynos, etc.)"
+    echo "or has an incompatible CPU architecture."
+    echo ""
+    echo "Please use the source compilation script instead:"
+    echo ""
+    echo "  curl -fsSL https://raw.githubusercontent.com/duall/singlePlayerWow-android/main/wowsp_cutoff.sh -o ~/wowsp_cutoff.sh && bash ~/wowsp_cutoff.sh"
+    echo ""
+    rm -rf "$SERVER_DIR"
+    exit 1
+elif echo "$test_output" | grep -qiE "libboost_system\.so.*not found|CANNOT LINK EXECUTABLE"; then
+    # Binary is compatible but needs a boost_system stub library
+    # Boost 1.89+ removed the shared lib (header-only since 1.69), but the binary was linked against it
+    print_status "Binary is compatible (needs libboost_system stub - will fix)"
+    NEEDS_BOOST_STUB=true
 else
-    # Try one more test - just see if the OS can load and start the binary at all
-    # A non-compatible binary would give "cannot execute" / signal errors
-    test_output=$("$SERVER_DIR/bin/authserver" 2>&1 || true)
-    if echo "$test_output" | grep -qiE "cannot execute binary file|Exec format error|not found|SIGILL|Illegal instruction"; then
-        print_error "This binary is NOT compatible with your device!"
-        echo ""
-        echo "The pre-compiled Snapdragon binaries cannot run on this device."
-        echo "This could mean your device uses a different chipset (MediaTek, Exynos, etc.)"
-        echo "or has an incompatible CPU architecture."
-        echo ""
-        echo "Please use the source compilation script instead:"
-        echo ""
-        echo "  curl -fsSL https://raw.githubusercontent.com/duall/singlePlayerWow-android/main/wowsp_cutoff.sh -o ~/wowsp_cutoff.sh && bash ~/wowsp_cutoff.sh"
-        echo ""
-        rm -rf "$SERVER_DIR"
-        exit 1
-    else
-        # Binary produced some output without fatal exec errors - likely compatible
-        print_status "Binary appears compatible with this device"
-    fi
+    print_status "Binary is compatible with this device!"
+    NEEDS_BOOST_STUB=false
 fi
 
 echo "Device compatibility confirmed. Proceeding with full setup..."
@@ -401,8 +398,48 @@ else
     print_status "All dependencies already installed"
 fi
 
-# Step 3: Download pre-compiled binaries
-print_step "Step 3: Downloading pre-compiled binaries"
+# Step 3: Create libboost_system stub if needed
+print_step "Step 3: Fixing library dependencies"
+
+if [ "$NEEDS_BOOST_STUB" = true ]; then
+    echo "Creating libboost_system.so stub (Boost 1.89+ removed the shared library)..."
+    
+    # Create a minimal stub shared library that satisfies the linker
+    STUB_SRC="$HOME/boost_stub.c"
+    cat > "$STUB_SRC" << 'EOF'
+// Minimal stub - boost_system has been header-only since Boost 1.69
+// This empty shared lib satisfies the dynamic linker for binaries compiled against older Boost
+void boost_system_stub(void) {}
+EOF
+
+    # Need a C compiler for the stub
+    if ! command -v clang >/dev/null 2>&1; then
+        echo "Installing clang to build stub library..."
+        pkg install -y clang
+    fi
+
+    clang -shared -o "$PREFIX/lib/libboost_system.so" "$STUB_SRC"
+    rm -f "$STUB_SRC"
+    
+    # Verify the fix works
+    test_output2=$("$SERVER_DIR/bin/authserver" 2>&1 || true)
+    if echo "$test_output2" | grep -qiE "CANNOT LINK EXECUTABLE|libboost.*not found"; then
+        print_error "Library fix did not resolve the issue"
+        echo "Please use the source compilation script instead:"
+        echo ""
+        echo "  curl -fsSL https://raw.githubusercontent.com/duall/singlePlayerWow-android/main/wowsp_cutoff.sh -o ~/wowsp_cutoff.sh && bash ~/wowsp_cutoff.sh"
+        echo ""
+        rm -rf "$SERVER_DIR"
+        exit 1
+    fi
+    
+    print_status "libboost_system.so stub created and verified"
+else
+    print_status "No library fixes needed"
+fi
+
+# Step 4: Download pre-compiled binaries
+print_step "Step 4: Downloading pre-compiled binaries"
 
 # authserver was already downloaded during compatibility check
 echo "authserver already downloaded from compatibility check."
@@ -419,8 +456,8 @@ fi
 
 print_status "Both server binaries downloaded and ready"
 
-# Step 4: Clone source for modules (needed for SQL data and configs)
-print_step "Step 4: Downloading AzerothCore source (for modules/SQL data)"
+# Step 5: Clone source for modules (needed for SQL data and configs)
+print_step "Step 5: Downloading AzerothCore source (for modules/SQL data)"
 if [ ! -d "$SOURCE_DIR" ]; then
     echo "Cloning AzerothCore Android fork..."
     git clone https://github.com/duall/azerothcore-android.git "$SOURCE_DIR"
@@ -442,8 +479,8 @@ else
     fi
 fi
 
-# Step 5: Clone all modules (locked to specific commits)
-print_step "Step 5: Downloading AzerothCore modules"
+# Step 6: Clone all modules (locked to specific commits)
+print_step "Step 6: Downloading AzerothCore modules"
 mkdir -p "$SOURCE_DIR/modules"
 cd "$SOURCE_DIR/modules"
 
@@ -524,8 +561,8 @@ else
     print_status "All ${#MODULES[@]} modules downloaded and locked successfully"
 fi
 
-# Step 6: Configure MariaDB
-print_step "Step 6: Configuring MariaDB"
+# Step 7: Configure MariaDB
+print_step "Step 7: Configuring MariaDB"
 
 if [ ! -d "$PREFIX/var/lib/mysql/mysql" ]; then
     echo "Initializing MariaDB database..."
@@ -551,12 +588,12 @@ else
     print_status "Library link already exists"
 fi
 
-# Step 7: Start MariaDB
-print_step "Step 7: Starting MariaDB"
+# Step 8: Start MariaDB
+print_step "Step 8: Starting MariaDB"
 ensure_mariadb_running
 
-# Step 8: Setup database user
-print_step "Step 8: Setting up database user"
+# Step 9: Setup database user
+print_step "Step 9: Setting up database user"
 if ! check_mysql_user; then
     echo "Creating acore user..."
     
@@ -580,8 +617,8 @@ else
     print_status "Database user already exists"
 fi
 
-# Step 9: Create required databases
-print_step "Step 9: Creating AzerothCore databases"
+# Step 10: Create required databases
+print_step "Step 10: Creating AzerothCore databases"
 echo "Creating required databases..."
 if mariadb -u acore -pacore -e "CREATE DATABASE IF NOT EXISTS acore_world; CREATE DATABASE IF NOT EXISTS acore_characters; CREATE DATABASE IF NOT EXISTS acore_auth; CREATE DATABASE IF NOT EXISTS acore_playerbots;" 2>/dev/null; then
     print_status "Databases created successfully"
@@ -589,8 +626,8 @@ else
     print_warning "Failed to create some databases - they may already exist"
 fi
 
-# Step 10: Download configuration files
-print_step "Step 10: Setting up configuration files"
+# Step 11: Download configuration files
+print_step "Step 11: Setting up configuration files"
 echo "Downloading configuration files..."
 
 TEMP_CONFIG_DIR="$HOME/temp_configs"
@@ -616,8 +653,23 @@ else
     echo "You may need to configure the server manually"
 fi
 
-# Step 11: Download server data
-print_step "Step 11: Downloading server data files"
+# Step 12: Copy module configuration files
+print_step "Step 12: Copying module configuration files"
+mkdir -p "$SERVER_DIR/etc/modules"
+MODULE_CONFS=$(find "$SOURCE_DIR/modules" -name "*.conf.dist" 2>/dev/null)
+if [ -n "$MODULE_CONFS" ]; then
+    CONF_COUNT=0
+    while IFS= read -r conf_file; do
+        cp "$conf_file" "$SERVER_DIR/etc/modules/"
+        CONF_COUNT=$((CONF_COUNT + 1))
+    done <<< "$MODULE_CONFS"
+    print_status "$CONF_COUNT module config files copied"
+else
+    print_warning "No module .conf.dist files found"
+fi
+
+# Step 13: Download server data
+print_step "Step 13: Downloading server data files"
 echo "Downloading WoW client data (this may take several minutes)..."
 
 DATA_URL="https://github.com/wowgaming/client-data/releases/download/v16/data.zip"
@@ -635,8 +687,8 @@ else
     echo "The server may not work properly without these files"
 fi
 
-# Step 12: Final setup and launch
-print_step "Step 12: Setup Complete"
+# Step 14: Final setup and launch
+print_step "Step 14: Setup Complete"
 
 # Verify executables exist
 if [ ! -f "$SERVER_DIR/bin/authserver" ] || [ ! -f "$SERVER_DIR/bin/worldserver" ]; then
