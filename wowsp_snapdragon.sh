@@ -596,8 +596,51 @@ else
     print_warning "Failed to create some databases - they may already exist"
 fi
 
-# Step 10: Download configuration files
-print_step "Step 10: Setting up configuration files"
+# Step 10: Import base database schemas
+print_step "Step 10: Importing base database schemas"
+echo "Importing base SQL schemas (this may take a few minutes for world database)..."
+
+DB_USER="acore"
+DB_PASS="acore"
+BASE_SQL_DIR="$SOURCE_DIR/data/sql/base"
+
+import_base_sql() {
+    local db_dir="$1"
+    local target_db="$2"
+    local count=0
+    local failed=0
+    
+    if [ ! -d "$db_dir" ]; then
+        print_warning "Base SQL directory not found: $db_dir"
+        return 1
+    fi
+    
+    for f in "$db_dir"/*.sql; do
+        if [ -f "$f" ]; then
+            if mariadb -u "$DB_USER" -p"$DB_PASS" "$target_db" < "$f" 2>/dev/null; then
+                count=$((count + 1))
+            else
+                echo "  Failed: $(basename "$f")"
+                failed=$((failed + 1))
+            fi
+        fi
+    done
+    echo "  $target_db: $count files imported ($failed failed)"
+}
+
+echo "Importing auth database schema..."
+import_base_sql "$BASE_SQL_DIR/db_auth" "acore_auth"
+
+echo "Importing characters database schema..."
+import_base_sql "$BASE_SQL_DIR/db_characters" "acore_characters"
+
+echo "Importing world database schema (this is the largest)..."
+import_base_sql "$BASE_SQL_DIR/db_world" "acore_world"
+
+print_status "Base database schemas imported"
+
+# Step 11: Download configuration files
+print_step "Step 11: Setting up configuration files"
 echo "Downloading configuration files..."
 
 TEMP_CONFIG_DIR="$HOME/temp_configs"
@@ -623,8 +666,8 @@ else
     echo "You may need to configure the server manually"
 fi
 
-# Step 11: Copy module configuration files
-print_step "Step 11: Copying module configuration files"
+# Step 12: Copy module configuration files
+print_step "Step 12: Copying module configuration files"
 mkdir -p "$SERVER_DIR/etc/modules"
 MODULE_CONFS=$(find "$SOURCE_DIR/modules" -name "*.conf.dist" 2>/dev/null)
 if [ -n "$MODULE_CONFS" ]; then
@@ -638,8 +681,8 @@ else
     print_warning "No module .conf.dist files found"
 fi
 
-# Step 12: Download server data
-print_step "Step 12: Downloading server data files"
+# Step 13: Download server data
+print_step "Step 13: Downloading server data files"
 echo "Downloading WoW client data (this may take several minutes)..."
 
 DATA_URL="https://github.com/wowgaming/client-data/releases/download/v16/data.zip"
@@ -657,8 +700,8 @@ else
     echo "The server may not work properly without these files"
 fi
 
-# Step 13: Final setup and launch
-print_step "Step 13: Setup Complete"
+# Step 14: Final setup and launch
+print_step "Step 14: Setup Complete"
 
 # Verify executables exist
 if [ ! -f "$SERVER_DIR/bin/authserver" ] || [ ! -f "$SERVER_DIR/bin/worldserver" ]; then
