@@ -331,8 +331,45 @@ fi
 echo "Estimated time: 10-20 minutes (no compilation needed)"
 echo ""
 
-# Step 1: Snapdragon compatibility check - download and test binary before anything else
-print_step "Step 1: Checking Snapdragon binary compatibility"
+# Step 1: Install runtime dependencies first (needed before binary test)
+print_step "Step 1: Installing runtime dependencies"
+PACKAGES=("git" "mariadb" "tmux" "curl" "unzip" "libc++" "boost" "clang")
+MISSING_PACKAGES=()
+
+echo "Checking for required packages..."
+for package in "${PACKAGES[@]}"; do
+    if ! check_package "$package"; then
+        MISSING_PACKAGES+=("$package")
+    fi
+done
+
+if [ ${#MISSING_PACKAGES[@]} -gt 0 ]; then
+    echo "Installing missing packages: ${MISSING_PACKAGES[*]}"
+    pkg update
+    pkg install -y "${MISSING_PACKAGES[@]}"
+    print_status "Dependencies installed"
+else
+    print_status "All dependencies already installed"
+fi
+
+# Create Boost shared library stubs
+# Termux boost package only provides headers/static libs, but the pre-compiled
+# binaries were linked against shared libs. Create empty stubs to satisfy the linker.
+echo "Creating Boost shared library stubs..."
+BOOST_LIBS=(
+    boost_system boost_filesystem boost_thread boost_program_options
+    boost_iostreams boost_regex boost_atomic boost_chrono boost_locale
+    boost_log boost_log_setup boost_date_time boost_container boost_random
+)
+for lib in "${BOOST_LIBS[@]}"; do
+    if [ ! -f "$PREFIX/lib/lib${lib}.so" ]; then
+        echo "void ${lib}_stub(void) {}" | clang -shared -o "$PREFIX/lib/lib${lib}.so" -x c -
+    fi
+done
+print_status "Boost library stubs ready"
+
+# Step 2: Snapdragon compatibility check - download and test binary
+print_step "Step 2: Checking Snapdragon binary compatibility"
 
 echo "Downloading test binary to verify device compatibility..."
 mkdir -p "$SERVER_DIR/bin"
@@ -370,27 +407,6 @@ else
 fi
 
 echo "Device compatibility confirmed. Proceeding with full setup..."
-
-# Step 2: Install runtime dependencies (no build tools needed)
-print_step "Step 2: Installing runtime dependencies"
-PACKAGES=("git" "mariadb" "tmux" "curl" "unzip" "libc++" "boost")
-MISSING_PACKAGES=()
-
-echo "Checking for required packages..."
-for package in "${PACKAGES[@]}"; do
-    if ! check_package "$package"; then
-        MISSING_PACKAGES+=("$package")
-    fi
-done
-
-if [ ${#MISSING_PACKAGES[@]} -gt 0 ]; then
-    echo "Installing missing packages: ${MISSING_PACKAGES[*]}"
-    pkg update
-    pkg install -y "${MISSING_PACKAGES[@]}"
-    print_status "Dependencies installed"
-else
-    print_status "All dependencies already installed"
-fi
 
 # Step 3: Download pre-compiled binaries
 print_step "Step 3: Downloading pre-compiled binaries"
