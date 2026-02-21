@@ -1,14 +1,21 @@
 <img width="2066" height="753" alt="image" src="https://github.com/user-attachments/assets/ba815e88-dd5b-4584-88e9-dfdf9eed767b" />
 
+*Cutoff date applied, so azerothcore updates should not break this:
 
-## One click install script (Cutoff date applied, so azerothcore updates do not break this):
+## One click install scripts 
+### ⚡ Fast install, no compilation (~10 min):
+*copy into termux*
+
+`curl -fsSL https://raw.githubusercontent.com/duall/singlePlayerWow-android/main/wowsp_snapdragon.sh -o ~/wowsp_snapdragon.sh && bash ~/wowsp_snapdragon.sh`
+
+Uses pre-compiled binaries built for Snapdragon, but might work on other devices too. The script will check compatibility and suggest the universal version if it doesn't work.
+
+### Universal / all devices (~30-60 min, compiles from source):
 *copy into termux*
 
 `curl -fsSL https://raw.githubusercontent.com/duall/singlePlayerWow-android/main/wowsp_cutoff.sh -o ~/wowsp_cutoff.sh && bash ~/wowsp_cutoff.sh`
 
-Should take care of everything below automatically
-
-Connect with chromiecraft 3.3.5 trough winlator ( set realm to 127.0.0.1 or 192.168.x.x  )
+Should take care of everything automatically. Connect with ChromieCraft 3.3.5a through Winlator (set realmlist to `127.0.0.1` or your LAN/WAN IP)
 
 ## Manual installation if script does not work
 
