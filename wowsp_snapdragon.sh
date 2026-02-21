@@ -677,6 +677,12 @@ if [ -n "$MODULE_CONFS" ]; then
         CONF_COUNT=$((CONF_COUNT + 1))
     done <<< "$MODULE_CONFS"
     print_status "$CONF_COUNT module config files copied"
+    
+    # mod_ahbot requires both .conf and .conf.dist to exist
+    if [ -f "$SERVER_DIR/etc/modules/mod_ahbot.conf" ] && [ ! -f "$SERVER_DIR/etc/modules/mod_ahbot.conf.dist" ]; then
+        cp "$SERVER_DIR/etc/modules/mod_ahbot.conf" "$SERVER_DIR/etc/modules/mod_ahbot.conf.dist"
+        echo "  Created mod_ahbot.conf.dist"
+    fi
 else
     print_warning "No module .conf.dist files found"
 fi
