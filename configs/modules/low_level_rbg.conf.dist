@@ -1,0 +1,21 @@
+#
+# Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
+#
+
+[worldserver]
+
+#
+#    LowLevelRBG.MinLevelRBG
+#        Description: Set min level for players to be able to queue up for RBG using this module
+#        Default:     10
+#
+
+LowLevelRBG.MinLevelRBG = 10
+
+#
+#    LowLevelRBG.MaxLevelRBG
+#        Description: Set max level for players to be able to queue up for RBG using this module
+#        Default:     79
+#
+
+LowLevelRBG.MaxLevelRBG = 79

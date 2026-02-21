@@ -1,0 +1,103 @@
+[worldserver]
+
+# CostGuildHouse
+#
+# The amount of money to buy a guild house
+# default = 10000000 (1000g)
+#
+CostGuildHouse = 10000000
+
+# GuildHouseMailbox
+#
+# The amount of money to buy a mail box for your guild house
+# default = 500000 (50g)
+#
+GuildHouseMailbox = 500000
+
+# GuildHouseInnKeeper
+#
+# The amount of money to buy a Innkeeper for your guild house
+# default = 1000000 (100g)
+#
+GuildHouseInnKeeper = 1000000
+
+# GuildHouseBank
+#
+# The amount of money to buy a bank for your guild house
+# default = 1000000 (100g)
+#
+GuildHouseBank = 1000000
+
+# GuildHouseAuctioneer
+#
+# The amount of money to buy a Auctioneer for your guild house
+# default = 1000000 (100g)
+#
+GuildHouseAuctioneer = 1000000
+
+# GuildHouseTrainerCost
+#
+# The amount of money to buy each class trainer for your guild house
+# default = 1000000 (100g)
+#
+GuildHouseTrainerCost = 1000000
+
+# GuildHouseVendor
+#
+# The amount of money to buy vender for your guild house such as Trade supplies | Tabard Vendor
+# default = 500000 (50g)
+#
+GuildHouseVendor = 500000
+
+# GuildHouseObject
+#
+# The amount of money to buy an object for your guild house such as Barber chair | guild vault
+# default = 500000 (50g)
+#
+GuildHouseObject = 500000
+
+# GuildHousePortal
+#
+# The amount of money to buy an portal for your guild house
+# default = 1000000 (100g)
+#
+GuildHousePortal = 1000000
+
+# GuildHouseProf
+#
+# Cost of profession vendors within the guild.
+# default = 500000 (50g)
+#
+GuildHouseProf = 500000
+
+# GuildHouseSpirit
+#
+# Cost of Spirit Healer at the guildhouse graveyard .
+# default = 100000 (10g)
+#
+GuildHouseSpirit = 100000
+
+# GuildHouseBuyRank
+#
+# Minimum GuildRank able to make purchases in guild house
+# default = 4 (Initiate)
+# GR_GUILDMASTER  = 0
+# GR_OFFICER      = 1
+# GR_VETERAN      = 2
+# GR_MEMBER       = 3
+# GR_INITIATE     = 4
+#
+GuildHouseBuyRank = 4
+
+
+# GuildHouseSellRank
+#
+# Minimum GuildRank able to sell the guild house
+# default = 0 (Guild Master)
+# GR_GUILDMASTER  = 0
+# GR_OFFICER      = 1
+# GR_VETERAN      = 2
+# GR_MEMBER       = 3
+# GR_INITIATE     = 4
+#
+GuildHouseSellRank = 0

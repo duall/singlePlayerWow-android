@@ -1,0 +1,15 @@
+#
+# Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
+#
+
+[worldserver]
+
+#
+#     RDF.Expansion
+#        Description: Allow setting which expansion can be used in LFG
+#           2 - WOTLK (Default behaviour)
+#           1 - TBC (if the player queues WOTLK RDF, join as TBC RDF)
+#           0 - Classic  (if the player queues Wotlk or TBC RDF, join as Classic RDF)
+#        Default:     2
+
+RDF.Expansion = 2

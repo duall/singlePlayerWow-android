@@ -1,0 +1,39 @@
+[worldserver]
+
+###################################################################################################
+#	Phased Duels module
+###################################################################################################
+
+# Enable the module? (1: true | 0: false)
+
+PhasedDuels.Enable = 1
+
+# Announce Module (1: true | 0: false)
+
+PhasedDuelsAnnounce.Enable = 1
+
+###################################################################################################
+#
+# SetMaxHP.Enable 
+#	Enable players to get Max HP after duel (1: true | 0: false)
+#
+# ResetCoolDowns.Enable
+#	Reset all cooldowns after duel has finished (1: true | 0: false)
+#
+# RestorePower.Enable
+#	Set players mana to full after duel has been completed (1: true | 0: false)
+#
+# RetorePowerForRogueOrWarrior.Enable
+#	Set Rogues and warrior to max after duel has completed this requires RestorePower to be enabled. (1: true | 0: false)
+#
+# ReviveOrRestorPetHealth.Enable
+#	Revive dead pets or set full health after duel is completed. ( 1: true | 0: false) 
+#
+###################################################################################################
+
+SetMaxHP.Enable = 1
+ResetCoolDowns.Enable = 1
+RestorePower.Enable = 1
+RetorePowerForRogueOrWarrior.Enable = 1
+ReviveOrRestorPetHealth.Enable = 1
+

@@ -1,0 +1,37 @@
+#
+# Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
+# Copyright (C) 2021+ WarheadCore <https://github.com/WarheadCore>
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# User has manually chosen to ignore the git-tests, so throw them a warning.
+# This is done EACH compile so they can be alerted about the consequences.
+#
+
+########################################
+# QueueListCache module configuration
+########################################
+[worldserver]
+
+#
+#    QLC.Enable
+#        Description: Enable module
+#        Default:     0 - Disabled
+#                     1 - Enabled
+#
+
+QLC.Enable = 1
+
+#
+#    QLC.Update.Delay
+#        Description: Time to update queue cache in seconds
+#        Default:     5
+#
+
+QLC.Update.Delay = 5

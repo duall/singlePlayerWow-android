@@ -1,0 +1,68 @@
+[worldserver]
+
+#
+#   instanceReset.Enable
+#       Descripcion: Enable the module.
+#       Default: true
+#       Value: true | false
+#
+
+instanceReset.Enable = true
+
+#
+#   instanceReset.Announcer
+#       Descripcion: If true, announces the module to the player.
+#       Default: true
+#       Value: true | false
+#
+
+instanceReset.Announcer = true
+
+#
+#   instanceReset.NormalModeOnly
+#       Descripcion: Only remove save of the normal instances. (TODO: Dynamically warn the user if this setting is set to true)
+#       Default: false
+#       Value: true | false
+#
+
+instanceReset.NormalModeOnly = false
+
+#
+#   instanceReset.TransactionType
+#       Descripcion: Positive integer value, which determines the type of transaction to be carried out with the npc.
+#       Default: 0 (You are not charged anything)
+#       Value:
+#           0 (You are not charged anything)
+#           1 (You are charged with the token)
+#           2 (You are charged with money)
+#           3 (You are charged money and token)
+#
+
+instanceReset.TransactionType = 0
+
+#
+#   instanceReset.TokenID
+#       Description: Token or item identifier.
+#       Default: 49426 (Emblem of Frost).
+#       Value: Check `item_template`.`entry`
+#
+
+instanceReset.TokenID = 49426
+
+#
+#   instanceReset.TokenCount
+#       Description: Quantity of the item or token to request.
+#       Default: 26 (Amount of emblems obtained within icc.)
+#       Value: Positive value that represents the quantity to order
+#
+
+instanceReset.TokenCount = 26
+
+#
+#   instanceReset.MoneyCount
+#       Description: Amount of money the player needs to restart.
+#       Default: 10000000 (In copper. In this case it would be 1000 gold by default.)
+#       Value: Positive integer value.
+#
+
+instanceReset.MoneyCount = 10000000
