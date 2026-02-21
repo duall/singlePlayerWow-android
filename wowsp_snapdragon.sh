@@ -208,10 +208,15 @@ else
     print_warning "Configuration directory not found"
 fi
 
-# mod_ahbot requires both .conf and .conf.dist
-if [ -f "$SERVER_DIR/etc/modules/mod_ahbot.conf" ] && [ ! -f "$SERVER_DIR/etc/modules/mod_ahbot.conf.dist" ]; then
-    cp "$SERVER_DIR/etc/modules/mod_ahbot.conf" "$SERVER_DIR/etc/modules/mod_ahbot.conf.dist"
-fi
+# Server requires .conf.dist for every module - create from .conf if missing
+for conf in "$SERVER_DIR/etc/modules/"*.conf; do
+    [ -f "$conf" ] || continue
+    dist="${conf}.dist"
+    if [ ! -f "$dist" ]; then
+        cp "$conf" "$dist"
+    fi
+done
+print_status "Module .conf.dist files ensured"
 
 # Step 6: Configure MariaDB
 print_step "Step 6: Configuring MariaDB"
