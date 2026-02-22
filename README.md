@@ -17,6 +17,8 @@ Uses pre-compiled binaries built for Snapdragon, but might work on other devices
 
 Should take care of everything automatically. Connect with ChromieCraft 3.3.5a through Winlator (set realmlist to `127.0.0.1` or your LAN/WAN IP)
 
+To run the server again after a restart, you can just use same script `bash ~/wowsp_cutoff.sh` (It will take care of mariadb startup and tmux sessions)
+
 ## Manual installation if script does not work
 
 You need to install the build and runtime dependencies:
@@ -176,7 +178,11 @@ cd ~/azeroth-server/
 
 `curl -sL https://raw.githubusercontent.com/duall/singlePlayerWow-android/refs/heads/main/fix-modules-sql.sh | bash`
 
-## Launch both authserver and worldserver in a single tmux window
+## Launch both authserver and worldserver in a single tmux window 
+
+Just make sure mariaDB is running `mariadbd-safe --datadir=$PREFIX/var/lib/mysql &`
+
+authserver+worldserver in tmux:
 
 `tmux new-session -d -c ~/azeroth-server -s azeroth './bin/authserver' \; split-window -h -c ~/azeroth-server './bin/worldserver' \; attach`
 
